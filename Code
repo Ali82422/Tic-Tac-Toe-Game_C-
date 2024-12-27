@@ -1,0 +1,190 @@
+#include<iostream>//This headerfile is used to get basic input output
+#include <ctime> //This headerfile is used as srand function and time is used
+#include<algorithm>//This headerfile is used as transform function is used
+#include<cctype>//This headerfile is used as tolower function is used
+using namespace std;
+
+//Five user defiened functions are used that are defined in the section after the int main function
+void drawBoard(char *spaces); //A pointer to thre variable spaces is used
+void playerMove(char *spaces, char player);//same as before pointer spaces is used and player variable is ued
+void computerMove(char *spaces, char computer);//computer variable is used 
+bool checkWinner(char *spaces, char player);//player variable is used
+bool checkTie(char *spaces);//pointer spacees is used 
+//this is the main function in which function will be called
+int main(){
+    //A string is initialized to give user a choice to play with computer or with another player
+    string gameMode;
+    cout<<"Do you want to play with a player or computer.\nType 'player' for player ,\nType 'computer' for computer:"<<endl;
+    cin>>gameMode;
+    // Converting the gamemode string into lower case to avoid case sensitivity problem 
+    //This will convert each bword of the string into lowercase
+    transform(gameMode.begin(), gameMode.end(), gameMode.begin(), ::tolower);
+    //spaces variable is initialized that will be used in each function
+    char spaces[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+    //Two variable are initialized
+    char player = 'X';
+    char computer = 'O';
+    //bool is originally initialized to true
+    bool running = true;
+    //Drawboard function is being called
+    drawBoard(spaces);
+    //A while loop is decalred that will run untill on wins or match ties
+    //Its condition is set running whicch is initialized to being true after someone wins it will be false
+    while(running) {
+        //So if the player chooses to play with the computer this if will be executed
+        if (gameMode == "computer") {
+            playerMove(spaces, player); //in the player move function it will check that how many spaces has the player filled in the drawboard
+            drawBoard(spaces);
+            //Now it will check that the multiple possibilities listed in the checckwinner function 
+            //If one of the possibilities is in favour of the player 'You Won' Will be executed and will break
+            if (checkWinner(spaces, player)) {
+                cout << "YOU WIN!\n";
+                break;
+                //else it will use chcek tie function if all the spaces are occupied still there is no winner the match will tie
+            } else if (checkTie(spaces)) {
+                break;
+            }
+
+            // Now samilarly it will check that the spaces occupied by computer are in favour of the computer or not if yes then it will display the player has loosed
+            computerMove(spaces, computer);
+            drawBoard(spaces);
+            
+            if (checkWinner(spaces, computer)) {
+                cout << "YOU LOSE!\n";
+                break;
+            } else if (checkTie(spaces)) {
+                break;
+            }
+        }
+        //Now if the player 1 has choosed to play with another player
+        else if (gameMode == "player") {
+            //It will be chceking isf the player 1 with X wins
+            // Player 1 (X) move
+            playerMove(spaces, 'X');
+            drawBoard(spaces);
+            
+            if (checkWinner(spaces, 'X')) {
+                cout << "Player 1 (X) WINS!\n";
+                break;
+            } else if (checkTie(spaces)) {
+                break;
+            }
+            //similarly player 2 with character O wins or not
+            // Player 2 (O) move
+            playerMove(spaces, 'O');
+            drawBoard(spaces);
+            
+            if (checkWinner(spaces, 'O')) {
+                cout << "Player 2 (O) WINS!\n";
+                break;
+            } else if (checkTie(spaces)) {
+                break;
+            }
+        }
+    }
+    // At the end thanks for playing will be displayed
+    //the while loop will run 9 times after that the loop will stop
+    cout << "Thanks for playing!\n";
+    return 0;
+}
+//This is the most important part of the project 
+//In this the function Drawboard is defined
+void drawBoard(char *spaces)  // the spaces pointer is used as it will be having the entered the charcter X and O in it
+{
+    cout << '\n'; //The linje used to spaces on the top
+    cout << "     |     |     " << '\n'; //these are the first two lines of the 3x3 board
+    cout << "  " << spaces[0] << "  |  " << spaces[1] << "  |  " << spaces[2] << "  " << '\n'; 
+    cout << "_____|_____|_____" << '\n';
+    cout << "     |     |     " << '\n';
+    cout << "  " << spaces[3] << "  |  " << spaces[4] << "  |  " << spaces[5] << "  " << '\n';
+    cout << "_____|_____|_____" << '\n';
+    cout << "     |     |     " << '\n';
+    cout << "  " << spaces[6] << "  |  " << spaces[7] << "  |  " << spaces[8] << "  " << '\n';
+    cout << "     |     |     " << '\n';
+    cout << '\n';
+}
+//this function will print the X of the player 1
+void playerMove(char *spaces, char player){
+    //an number variable is initialized
+    int number;
+    do {
+        //This function will ask the user to enter thr number on which point he wants to print his X
+        cout << "Player " << player << ", enter a spot to place a marker (1-9): ";
+        cin >> number;
+        number--;  // Convert to 0-based index
+        //When th number of the player moves are less than zero or greater than index 8 it will default
+        //Or thr space is already occupied it will give an invalid move
+        //Else the move will be considered
+        if (number < 0 || number > 8 || spaces[number] != ' ') {
+            cout << "Invalid move, try again.\n";
+        } else {
+            spaces[number] = player;
+            break;
+        }
+    } while (true);
+}
+//This function will print the O of the computer
+void computerMove(char *spaces, char computer){
+    //similar to the before function used variable number is used
+    int number;
+    //So this function srand generated a random number
+    //time function is used and is initialized as zero so it will generate a random number different from the last number being executed
+    srand(time(0));
+
+    while (true) {
+        // the number is inialized into rand function % 9 so it will not generate a very large number each time 
+        //As the spaces in the drawboard are 9 so modolos 9 is used
+        number = rand() % 9;
+        //similarly it will write the number on the space and it the loop is broken
+        if (spaces[number] == ' ') {
+            spaces[number] = computer;
+            break;
+        }
+    }
+}
+//Thsi function will be telling about the different possibilities from which each player or the computer has won the match
+bool checkWinner(char *spaces, char player)
+{
+        //checking The colomns of the rows are matching or not
+        if (spaces[0] == player && spaces[1] == player && spaces[2] == player) {
+        return true;  // First row
+    }
+    if (spaces[3] == player && spaces[4] == player && spaces[5] == player) {
+        return true;  // Second row
+    }
+    if (spaces[6] == player && spaces[7] == player && spaces[8] == player) {
+        return true;  // Third row
+    }
+
+    // Checking the diagonals
+    if (spaces[0] == player && spaces[4] == player && spaces[8] == player) {
+        return true;  // Left to right diagonal
+    }
+    if (spaces[2] == player && spaces[4] == player && spaces[6] == player) {
+        return true;  // Right to left diagonal
+    }
+    if(spaces[0] ==player && spaces[3] == player && spaces[6] == player){
+    	return true;
+	}
+	if(spaces[1] ==player && spaces[4] == player && spaces[7] == player){
+    	return true;
+	}
+	if(spaces[2] ==player && spaces[5] == player && spaces[8] == player){
+    	return true;
+	}
+    //So if there are no matching in the multiple possibillities it will return false and the match will be tied
+    return false;  // No winner
+}
+//This function will tell if all the spaces are occupied still there is no winner so Match is tie will be executed and will end the game
+bool checkTie(char *spaces)
+{   //so if all of the spaces are occupied still there is no winner found the checktie functiion will be executed
+    for (int i = 0; i < 9; i++) {
+        if (spaces[i] == ' '){ //So if there are spaces left the match will continue
+            return false;
+        }
+    }
+
+    cout << "IT'S A TIE!\n";
+    return true;
+}
+  
